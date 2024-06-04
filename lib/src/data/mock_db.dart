@@ -1,4 +1,4 @@
-import 'package:b5_todo_app/src/features/todos/data/database_repository.dart';
+import 'package:b5_todo_app/src/data/database_repository.dart';
 import 'package:b5_todo_app/src/features/todos/domain/todo.dart';
 
 class MockDb extends DatabaseRepository {
