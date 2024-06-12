@@ -1,4 +1,4 @@
-import 'package:b5_todo_app/src/features/todos/data/database_repository.dart';
+import 'package:b5_todo_app/src/data/database_repository.dart';
 import 'package:b5_todo_app/src/features/todos/domain/todo.dart';
 import 'package:flutter/material.dart';
 
@@ -20,14 +20,20 @@ class _TodoOverviewState extends State<TodoOverview> {
 
   @override
   void initState() {
-    todos = widget.dbRepo.getTodos();
     super.initState();
+    _fetchTodos();
+  }
+
+  void _fetchTodos() {
+    setState(() {
+      todos = widget.dbRepo.getTodos();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Todo Overview')),
+      appBar: AppBar(title: const Text('Todo')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -37,7 +43,8 @@ class _TodoOverviewState extends State<TodoOverview> {
                 child: FutureBuilder<List<Todo>>(
                   future: todos,
                   builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData &&
+                        snapshot.connectionState == ConnectionState.done) {
                       List<Todo> todos = snapshot.data!;
                       return ListView.builder(
                         itemCount: todos.length,
@@ -46,15 +53,15 @@ class _TodoOverviewState extends State<TodoOverview> {
                           return CheckboxListTile(
                             title: Text(currentTodo.taskName),
                             value: currentTodo.done,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                widget.dbRepo.changeTodo(currentTodo, value!);
-                              });
+                            onChanged: (bool? value) async {
+                              await widget.dbRepo.removeTodo(currentTodo);
+                              _fetchTodos();
                             },
                           );
                         },
                       );
-                    } else if (snapshot.connectionState != ConnectionState.done) {
+                    } else if (snapshot.connectionState !=
+                        ConnectionState.done) {
                       return const Center(child: CircularProgressIndicator());
                     } else {
                       return const Center(child: Icon(Icons.error));
@@ -76,16 +83,14 @@ class _TodoOverviewState extends State<TodoOverview> {
                     ),
                     const SizedBox(width: 8),
                     FilledButton(
-                      onPressed: () {
-                        final checkItem = Todo(
+                      onPressed: () async {
+                        final newTodo = Todo(
                           taskName: _controller.text,
                           done: false,
                         );
                         _controller.clear();
-                        setState(() {
-                          widget.dbRepo.addTodo(checkItem);
-                          todos = widget.dbRepo.getTodos();
-                        });
+                        await widget.dbRepo.addTodo(newTodo);
+                        _fetchTodos();
                       },
                       child: const Text('Add'),
                     ),

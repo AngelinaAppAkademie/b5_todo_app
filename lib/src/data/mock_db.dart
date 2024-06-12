@@ -1,7 +1,7 @@
 import 'package:b5_todo_app/src/data/database_repository.dart';
 import 'package:b5_todo_app/src/features/todos/domain/todo.dart';
 
-class MockDb extends DatabaseRepository {
+class MockDb implements DatabaseRepository {
   List<Todo> todos = [];
 
   @override
@@ -17,14 +17,9 @@ class MockDb extends DatabaseRepository {
   }
 
   @override
-  Future<void> removeRodo(Todo todo) async {
-    await Future.delayed(const Duration(seconds: 1));
+  Future<void> removeTodo(Todo todo) async {
+    // await Future.delayed(const Duration(seconds: 1));
     todos.remove(todo);
   }
 
-  @override
-  Future<void> changeTodo(Todo todo, bool state) async {
-    await Future.delayed(const Duration(seconds: 1));
-    todo.done = state;
-  }
 }
